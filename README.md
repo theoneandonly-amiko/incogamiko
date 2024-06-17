@@ -5,6 +5,7 @@
 - Python 3.8 or higher
 - Discord account
 - Discord bot token
+- Youtube API Key
 
 ### Technologies Used
 - Python
