@@ -4,7 +4,7 @@ import disnake
 from disnake.ext import commands
 import config
 
-# Define intents explicitly
+# Define intents
 intents = disnake.Intents.all()
 
 # Initialize the bot with intents and the prefix from config
@@ -19,6 +19,8 @@ keyword_responses = {
 }
 
 # Event: on_message
+# This small piece of puzzle will check the outgoing messages to see if it has any keywords included or not.
+# If yes, an appropriate response will be given. Bot will not check their messages, it will only check user messages
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
@@ -31,14 +33,19 @@ async def on_message(message):
             await message.channel.send(response)
             break
 
-    await bot.process_commands(message)
+    await bot.process_commands(message) # "Please don't stop working", Amiko said. 
+                                        # In fact, this part will assume if the command still working
 
 # Event: on_ready
+# This is a debug message (yes, I called everything "debug") to let you know
+# the session for the bot is initialized.
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')
 
 # Error handling
+# This part will send an error message directly to your current channel if there is someone trying to
+# execute a non-existent command.
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
@@ -46,7 +53,8 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send("An error occurred.")
 
-# Load initial cogs
+# Load initial cogs. Basically load every necessary things. 
+# It will give an error to you if failed, too.
 initial_extensions = ['base.commands', 'base.rich_presence']
 
 for extension in initial_extensions:
