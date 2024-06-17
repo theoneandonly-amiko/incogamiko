@@ -20,7 +20,7 @@ keyword_responses = {
 
 # Event: on_message
 # This small piece of puzzle will check the outgoing messages to see if it has any keywords included or not.
-# If yes, an appropriate response will be given. Bot will not check their messages, it will only check user messages
+# If yes, an appropriate response will be given. Bot will not check its own messages, it will only check user messages.
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
