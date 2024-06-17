@@ -5,6 +5,7 @@ from disnake.ext import commands
 import random
 import asyncio
 
+# Custom Help Command with embed message (This code block is partially finished).
 class CustomHelpCommand(commands.HelpCommand):
     async def send_bot_help(self, mapping):
         embed = disnake.Embed(
@@ -50,12 +51,13 @@ class MyCommands(commands.Cog):
     @commands.command(name="hi")
     async def hi(self, ctx):
         """Greets the user."""
+        # Give your own responses in here and the bot will randomly pick one
         responses = [
             f"Hello, {ctx.author.mention}!",
             "Hi there!",
             "Hey!"
         ]
-        await ctx.send(random.choice(responses))
+        await ctx.send(random.choice(responses)) # Pick a random response in the given dictionary
 
     @commands.command(name="goodbye")
     async def goodbye(self, ctx):
@@ -69,7 +71,7 @@ class MyCommands(commands.Cog):
 
     @commands.command(name="roll")
     async def roll(self, ctx, dice: str):
-        """Rolls a dice in NdN format."""
+        """Rolls a dice in NdN format.""" # Example: ?roll 1d4 or ?roll 2d3.
         try:
             rolls, limit = map(int, dice.split('d'))
         except Exception:
@@ -98,25 +100,28 @@ class MyCommands(commands.Cog):
 
         try:
             response = await self.bot.wait_for('message', check=check, timeout=15.0)
-        except asyncio.TimeoutError:
+        except asyncio.TimeoutError: # Don't let the bot wait too long or you'll lose, hehe.
             return await ctx.send(f"Sorry, you took too long. The correct answer was {correct_answer}.")
 
         if response.content.lower() == correct_answer.lower():
             await ctx.send("Correct! 🎉")
         else:
             await ctx.send(f"Wrong! The correct answer was {correct_answer}.")
-
+# ======================== GAME COMMAND ============================
+# Virtual Battle game
     @commands.command(name="battle")
     async def battle(self, ctx, user1: disnake.Member, user2: disnake.Member):
         """Initiates a battle between two users."""
-        if user1 == user2:
+        if user1 == user2: # This will be triggered if you try to battle yourself or mention same users in 1 message
+                           # Example: ?battle @Amiko @Amiko => Trigger the filter and abort the battle.
             await ctx.send("You can't battle the same user!")
             return
 
         player1 = user1
         player2 = user2
-        health1 = health2 = 100
+        health1 = health2 = 100 # Define max HP for both users
 
+        # Match will display in an embed message with HP updates with each attacks
         def battle_embed(p1, p2, h1, h2):
             embed = disnake.Embed(title="Battle Time!", color=0xFF5733)
             embed.add_field(name=p1.display_name, value=f"Health: {max(h1, 0)}", inline=True)
@@ -127,11 +132,11 @@ class MyCommands(commands.Cog):
         battle_message = await ctx.send(embed=battle_embed(player1, player2, health1, health2))
 
         while health1 > 0 and health2 > 0:
-            turn = random.choice([player1, player2])
+            turn = random.choice([player1, player2]) # Decide who will start attacking first.
 
             attacker = turn
             defender = player2 if turn == player1 else player1
-            damage = random.randint(10, 20)
+            damage = random.randint(10, 20) # Give random damage of each attacks.
 
             if attacker == player1:
                 health2 -= damage
@@ -140,11 +145,13 @@ class MyCommands(commands.Cog):
 
             await battle_message.edit(embed=battle_embed(player1, player2, health1, health2))
             await ctx.send(f"{attacker.display_name} attacks {defender.display_name} for {damage} damage!")
-            await asyncio.sleep(2)
+            # Battle progress.
+            await asyncio.sleep(2) # Time delay between attacks/turns
 
-        winner = player1 if health1 > 0 else player2
+        winner = player1 if health1 > 0 else player2 # If one user's HP dropped to 0, game over, the opponent win.
         await ctx.send(f"{winner.display_name} wins the battle!")
 
 def setup(bot):
     bot.add_cog(MyCommands(bot))
-    bot.help_command = CustomHelpCommand()
+    bot.help_command = CustomHelpCommand() # This option will disable the built-in help command
+    # It will allow the bot to have their own custom help command with a customizable visual and so on.
